@@ -1,3 +1,4 @@
+import Song from "@/components/Song";
 import { cn } from "@/lib/utils";
 
 export interface Root {
@@ -110,6 +111,7 @@ export interface Restrictions {
 }
 
 export default async function Home() {
+  console.log("Fetching token...");
   const token = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -119,6 +121,7 @@ export default async function Home() {
   const tokenResponse = await token.json();
   const tokenValue = tokenResponse.access_token;
 
+  console.log("Fetching albums...");
   const albumList = await fetch(
     "https://api.spotify.com/v1/artists/06HL4z0CvFAxyc27GXpf02/albums?include_groups=album&limit=30",
     {
@@ -145,10 +148,14 @@ export default async function Home() {
     .filter((a) => a.name != "Red")
     .filter((a) => !a.name.includes("Tour"));
 
+  console.log("Fetching tracks...");
   const albumsWithTracks: Array<{
     id: string;
     name: string;
-    tracks: string[];
+    tracks: {
+      id: string;
+      name: string;
+    }[];
   }> = await Promise.all(
     albums.map(async (album) => {
       const tracks = await fetch(
@@ -160,17 +167,19 @@ export default async function Home() {
         }
       );
       const data: TrackRoot = await tracks.json();
-      const trackNames = data.items.map((a) => a.name);
-      return { ...album, tracks: trackNames };
+      return {
+        ...album,
+        tracks: data.items.map((track) => ({ id: track.id, name: track.name })),
+      };
     })
   );
 
   return (
     <div className="p-4 text-center">
       <h1 className="font-bold text-2xl">Taylor Swift Album Tracker</h1>
-      <ul>
+      <ul className="">
         {albumsWithTracks.map((a) => (
-          <li className="" key={a.name}>
+          <li className="py-4" key={a.name}>
             <p
               className={cn(
                 "text-xl font-bold",
@@ -190,37 +199,8 @@ export default async function Home() {
               {a.name}
             </p>
             <ul>
-              {a.tracks.map((a) => (
-                <li key={a}>
-                  {a}{" "}
-                  <div className="rating gap-1">
-                    <input
-                      type="radio"
-                      name={a}
-                      className="mask mask-heart bg-red-400"
-                    />
-                    <input
-                      type="radio"
-                      name={a}
-                      className="mask mask-heart bg-orange-400"
-                    />
-                    <input
-                      type="radio"
-                      name={a}
-                      className="mask mask-heart bg-yellow-400"
-                    />
-                    <input
-                      type="radio"
-                      name={a}
-                      className="mask mask-heart bg-lime-400"
-                    />
-                    <input
-                      type="radio"
-                      name={a}
-                      className="mask mask-heart bg-green-400"
-                    />
-                  </div>
-                </li>
+              {a.tracks.map((track) => (
+                <Song key={track.id} id={track.id} name={track.name} />
               ))}
             </ul>
           </li>
