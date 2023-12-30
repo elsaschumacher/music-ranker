@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 export interface Root {
   href: string;
   limit: number;
@@ -6,6 +8,16 @@ export interface Root {
   previous: string;
   total: number;
   items: Item[];
+}
+
+export interface TrackRoot {
+  href: string;
+  limit: number;
+  next: string;
+  offset: number;
+  previous: string;
+  total: number;
+  items: TrackItem[];
 }
 export interface Item {
   album_type: string;
@@ -23,6 +35,43 @@ export interface Item {
   uri: string;
   artists: Artist[];
   album_group: string;
+}
+
+export interface TrackItem {
+  artists: Artist[];
+  available_markets: string[];
+  disc_number: number;
+  duration_ms: number;
+  explicit: boolean;
+  external_urls: ExternalUrls2;
+  href: string;
+  id: string;
+  is_playable: boolean;
+  linked_from: LinkedFrom;
+  restrictions: Restrictions;
+  name: string;
+  preview_url: string;
+  track_number: number;
+  type: string;
+  uri: string;
+  is_local: boolean;
+}
+
+export interface Artist {
+  external_urls: ExternalUrls;
+  href: string;
+  id: string;
+  name: string;
+  type: string;
+  uri: string;
+}
+
+export interface LinkedFrom {
+  external_urls: ExternalUrls3;
+  href: string;
+  id: string;
+  type: string;
+  uri: string;
 }
 
 export interface ExternalUrls {
@@ -52,35 +101,131 @@ export interface ExternalUrls2 {
   spotify: string;
 }
 
+export interface ExternalUrls3 {
+  spotify: string;
+}
+
+export interface Restrictions {
+  reason: string;
+}
+
 export default async function Home() {
   const token = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `grant_type=client_credentials&client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}`,
+    next: { revalidate: 3600 },
   });
-  const spotifyData = await fetch(
+  const tokenResponse = await token.json();
+  const tokenValue = tokenResponse.access_token;
+
+  const albumList = await fetch(
     "https://api.spotify.com/v1/artists/06HL4z0CvFAxyc27GXpf02/albums?include_groups=album&limit=30",
     {
-      headers: { Authorization: "Bearer " + (await token.json()).access_token },
+      headers: { Authorization: "Bearer " + tokenValue },
     }
   );
-  const data: Root = await spotifyData.json();
+  const data: Root = await albumList.json();
   const albums = data.items
-    .map((a) => a.name)
-    .filter((a) => !a.includes("Deluxe"))
-    .filter((a) => !a.includes("deluxe"))
-    .filter((a) => !a.includes("Clear Channel"))
-    .filter((a) => !a.includes("From The Vault"))
-    .filter((a) => !a.includes("Platin"))
-    .filter((a) => !a.includes("International"))
-    .filter((a) => !a.includes("Edition"))
-    .filter((a) => !a.includes("Remix"))
-    .filter((a) => !a.includes("Acoustic"))
-    .filter((a) => a != "1989")
-    .filter((a) => a != "Speak Now")
-    .filter((a) => a != "Red")
-    .filter((a) => !a.includes("Tour"));
-  console.log(data);
+    .map((a) => ({
+      id: a.id,
+      name: a.name,
+    }))
+    .filter((a) => !a.name.includes("Deluxe"))
+    .filter((a) => !a.name.includes("deluxe"))
+    .filter((a) => !a.name.includes("Clear Channel"))
+    .filter((a) => !a.name.includes("From The Vault"))
+    .filter((a) => !a.name.includes("Platin"))
+    .filter((a) => !a.name.includes("International"))
+    .filter((a) => !a.name.includes("Edition"))
+    .filter((a) => !a.name.includes("Remix"))
+    .filter((a) => !a.name.includes("Acoustic"))
+    .filter((a) => a.name != "1989")
+    .filter((a) => a.name != "Speak Now")
+    .filter((a) => a.name != "Red")
+    .filter((a) => !a.name.includes("Tour"));
 
-  return <div>{albums}</div>;
+  const albumsWithTracks: Array<{
+    id: string;
+    name: string;
+    tracks: string[];
+  }> = await Promise.all(
+    albums.map(async (album) => {
+      const tracks = await fetch(
+        `https://api.spotify.com/v1/albums/${album.id}/tracks`,
+        {
+          headers: {
+            Authorization: "Bearer " + tokenValue,
+          },
+        }
+      );
+      const data: TrackRoot = await tracks.json();
+      const trackNames = data.items.map((a) => a.name);
+      return { ...album, tracks: trackNames };
+    })
+  );
+
+  return (
+    <div className="p-4 text-center">
+      <h1 className="font-bold text-2xl">Taylor Swift Album Tracker</h1>
+      <ul>
+        {albumsWithTracks.map((a) => (
+          <li className="" key={a.name}>
+            <p
+              className={cn(
+                "text-xl font-bold",
+                a.name === "1989 (Taylor's Version)" &&
+                  "font-nineteeneightynine",
+                a.name.includes("Fearless") && "font-fearless uppercase",
+                a.name.includes("Red") && "font-red uppercase",
+                a.name.includes("reputation") && "font-reputation text-2xl",
+                a.name.includes("Lover") && "font-lover text-2xl",
+                a.name.includes("folklore") && "font-folkmore italic",
+                a.name.includes("evermore") && "font-folkmore italic",
+                a.name.includes("Speak") && "font-speaknow text-2xl",
+                a.name.includes("Midnights") && "font-midnights",
+                a.name.includes("Taylor Swift") && "font-debut text-2xl"
+              )}
+            >
+              {a.name}
+            </p>
+            <ul>
+              {a.tracks.map((a) => (
+                <li key={a}>
+                  {a}{" "}
+                  <div className="rating gap-1">
+                    <input
+                      type="radio"
+                      name={a}
+                      className="mask mask-heart bg-red-400"
+                    />
+                    <input
+                      type="radio"
+                      name={a}
+                      className="mask mask-heart bg-orange-400"
+                    />
+                    <input
+                      type="radio"
+                      name={a}
+                      className="mask mask-heart bg-yellow-400"
+                    />
+                    <input
+                      type="radio"
+                      name={a}
+                      className="mask mask-heart bg-lime-400"
+                    />
+                    <input
+                      type="radio"
+                      name={a}
+                      className="mask mask-heart bg-green-400"
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
