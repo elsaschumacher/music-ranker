@@ -9,6 +9,10 @@ const ratingSchema = new Schema({
     type: Number,
     required: true,
   },
+  userId: {
+    type: String,
+    required: true,
+  },
 });
 
 export const Rating = models.Rating ?? model("Rating", ratingSchema);
