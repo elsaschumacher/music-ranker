@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import { Schema, model, models, type ObjectId } from "mongoose";
 
 const ratingSchema = new Schema({
   songId: {
@@ -16,3 +16,11 @@ const ratingSchema = new Schema({
 });
 
 export const Rating = models.Rating ?? model("Rating", ratingSchema);
+
+export type RatingSchema = {
+  _id: ObjectId;
+  songId: string;
+  userId: string;
+  __v: number;
+  rating: number;
+};

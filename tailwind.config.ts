@@ -15,7 +15,7 @@ const config: Config = {
         mono: ["var(--font-roboto-mono)", ...defaultTheme.fontFamily.mono],
         nineteeneightynine: ["var(--font-permanent_marker)"],
         fearless: ["var(--font-montserrat)"],
-        debut: ["var(--font-sacramento)"],
+        debut: ["var(--font-dancing_script)"],
         red: ["var(--font-anton)"],
         reputation: ["var(--font-unifrakturmaguntia)"],
         lover: ["var(--font-satisfy)"],
@@ -25,7 +25,6 @@ const config: Config = {
       },
     },
   },
-  // @ts-expect-error
   plugins: [daisyui],
 };
 

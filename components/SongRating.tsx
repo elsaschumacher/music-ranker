@@ -1,20 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { rateSong } from "./actions";
+import { useRouter } from "next/navigation";
 
 export default function SongRating({
   id,
   previousRating,
+  albumId,
 }: {
   id: string;
   previousRating: number;
+  albumId: string;
 }) {
   const [rating, setRating] = useState(previousRating);
+  const [isTransitionStarted, startTransition] = useTransition();
+  const router = useRouter();
 
   const updateRating = async (newRating: number) => {
-    await rateSong(id, newRating);
+    await rateSong(id, newRating, albumId);
     setRating(newRating);
+    startTransition(router.refresh);
   };
 
   return (

@@ -1,5 +1,4 @@
-import Song from "@/components/Song";
-import { cn } from "@/lib/utils";
+import { Album } from "@/components/Album";
 
 export interface Root {
   href: string;
@@ -149,6 +148,7 @@ export default async function Home() {
     .filter((a) => !a.name.includes("Tour"));
 
   console.log("Fetching tracks...");
+  console.log(albums);
   const albumsWithTracks: Array<{
     id: string;
     name: string;
@@ -176,36 +176,14 @@ export default async function Home() {
 
   return (
     <div className="p-4 text-center">
-      <h1 className="font-bold text-2xl">Taylor Swift Album Tracker</h1>
-      <ul className="">
-        {albumsWithTracks.map((a) => (
-          <li className="py-4" key={a.name}>
-            <p
-              className={cn(
-                "text-xl font-bold",
-                a.name === "1989 (Taylor's Version)" &&
-                  "font-nineteeneightynine",
-                a.name.includes("Fearless") && "font-fearless uppercase",
-                a.name.includes("Red") && "font-red uppercase",
-                a.name.includes("reputation") && "font-reputation text-2xl",
-                a.name.includes("Lover") && "font-lover text-2xl",
-                a.name.includes("folklore") && "font-folkmore italic",
-                a.name.includes("evermore") && "font-folkmore italic",
-                a.name.includes("Speak") && "font-speaknow text-2xl",
-                a.name.includes("Midnights") && "font-midnights",
-                a.name.includes("Taylor Swift") && "font-debut text-2xl"
-              )}
-            >
-              {a.name}
-            </p>
-            <ul>
-              {a.tracks.map((track) => (
-                <Song key={track.id} id={track.id} name={track.name} />
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
+      <h1 className="font-bold text-3xl">Taylor Swift Song Rating</h1>
+      <div className="flex flex-col items-center container">
+        <ul>
+          {albumsWithTracks.map((album) => (
+            <Album key={album.id} album={album} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

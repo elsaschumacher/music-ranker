@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {
   Inter,
   Permanent_Marker,
-  Sacramento,
+  Dancing_Script,
   Montserrat,
   Anton,
   UnifrakturMaguntia,
@@ -19,53 +19,72 @@ const permanent_marker = Permanent_Marker({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-permanent_marker",
+  display: "swap",
+  adjustFontFallback: false,
 });
-const sacramento = Sacramento({
+
+const dancing_script = Dancing_Script({
   weight: "400",
   subsets: ["latin"],
-  variable: "--font-sacramento",
+  variable: "--font-dancing_script",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const montserrat = Montserrat({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-montserrat",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const anton = Anton({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-anton",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const unifrakturmaguntia = UnifrakturMaguntia({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-unifrakturmaguntia",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const satisfy = Satisfy({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-satisfy",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const im = IM_Fell_DW_Pica({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-im",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const rochester = Rochester({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-rochester",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const arimo = Arimo({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-arimo",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -84,7 +103,7 @@ export default function RootLayout({
         className={cn(
           inter.variable,
           permanent_marker.variable,
-          sacramento.variable,
+          dancing_script.variable,
           montserrat.variable,
           anton.variable,
           unifrakturmaguntia.variable,
