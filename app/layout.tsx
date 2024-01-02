@@ -14,6 +14,8 @@ import {
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
+export const runtime = "edge"; // 'nodejs' (default) | 'edge'
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const permanent_marker = Permanent_Marker({
   weight: "400",
