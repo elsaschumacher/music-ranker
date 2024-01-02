@@ -1,5 +1,4 @@
-import { Rating } from "../models/Rating";
-import { connectDB } from "./connect";
+import { conn } from "./connect";
 
 export async function createRating(
   songId: string,
@@ -7,19 +6,14 @@ export async function createRating(
   userId: string
 ) {
   try {
-    await connectDB();
-
-    const newRating = { songId, rating, userId };
-    console.log("Inserting or updating...", newRating);
-    const result = await Rating.updateOne({ userId, songId }, newRating, {
-      new: true,
-      upsert: true,
-      setDefaultsOnInsert: true,
-    });
-    console.log(result);
+    console.log("Inserting or updating...");
+    const result = await conn.execute(
+      "insert into ratings(songId, userId, rating) values (:songId, :userId, :rating) on duplicate key update rating = :rating;",
+      { songId, userId, rating }
+    );
 
     return {
-      rating: result,
+      ratingId: result.insertId,
     };
   } catch (error) {
     console.error(error);

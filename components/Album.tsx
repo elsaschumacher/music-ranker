@@ -1,18 +1,22 @@
 import { cn } from "@/lib/utils";
 import Song from "./Song";
-import { Rating, RatingSchema } from "@/lib/models/Rating";
-import { connectDB } from "@/lib/db/connect";
+import { RatingSchema } from "@/lib/models/Rating";
+import { conn } from "@/lib/db/connect";
 import { cookies } from "next/headers";
 import { unstable_cache } from "next/cache";
 
 export const getRating = (albumId: string) =>
   unstable_cache(
     async (userId: string, songIds: string[]) => {
-      const item = await Rating.find({
-        userId,
-        songId: songIds,
-      });
-      return item;
+      const possibleIds = "(" + songIds.map((id) => `'${id}'`).join(", ") + ")";
+      const items = (
+        await conn.execute(
+          `select * from ratings where userId = ? and songId in ${possibleIds};`,
+          [userId]
+        )
+      ).rows;
+
+      return items as RatingSchema[];
     },
     ["album-ratings"],
     { tags: ["album-" + albumId] }
@@ -31,8 +35,7 @@ export async function Album({
   };
 }) {
   const userId = cookies().get("userId")!.value;
-  await connectDB();
-  const ratings: RatingSchema[] = await getRating(album.id)(
+  const ratings = await getRating(album.id)(
     userId,
     album.tracks.map((t) => t.id)
   );
