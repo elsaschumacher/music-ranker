@@ -1,5 +1,12 @@
 import { Album } from "@/components/Album";
 
+export interface SpotifyError {
+  error: {
+    status: number;
+    message: string;
+  };
+}
+
 export interface Root {
   href: string;
   limit: number;
@@ -127,7 +134,13 @@ export default async function Home() {
       headers: { Authorization: "Bearer " + tokenValue },
     }
   );
-  const data: Root = await albumList.json();
+  const data: Root | SpotifyError = await albumList.json();
+
+  if ("error" in data) {
+    console.error(data);
+    return "Unknown error, reload the page";
+  }
+
   const albums = data.items
     .map((a) => ({
       id: a.id,
